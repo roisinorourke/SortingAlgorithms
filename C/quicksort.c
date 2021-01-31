@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdbool.h>
-#include <string.h>
 
 /* function to find the partition element */
 int partition(int arr[], int low, int high)
@@ -43,26 +42,23 @@ int partition(int arr[], int low, int high)
                  // everything to the right is greater
 }
 
-/* function to partially sort an array */
-void ksort(int arr[], int lo, int hi, int k)
+/* function to sort an array using quicksort */
+void quicksort(int arr[], int low, int high)
 {
     int pivot = 0;
 
-    if (lo < hi)
+    if (low < high)
     {
-        pivot = partition(arr, lo, hi); // find the partition element, or pivot
-        ksort(arr, lo, pivot - 1, k);
-        if (pivot < k-1)
-        {
-            ksort(arr, pivot + 1, hi, k);
-        }
+        pivot = partition(arr, low, high); // find the partition element, or pivot
+        /* apply quicksort again with the elements before the pivot and the elements after */
+        quicksort(arr, low, pivot - 1);
+        quicksort(arr, pivot + 1, high);
     }
 }
-
 /* extracts the number from the file name so we know the length of the array */
 int array_len( char *p)
 {
-    long length;
+    int length;
 
     /* go through the file name char by char */
     while (*p) 
@@ -79,13 +75,38 @@ int array_len( char *p)
         }
     }
     return length;
+    // based on code from https://www.quora.com/How-do-I-extract-an-integer-from-the-string-in-C
+}
+
+/* function to make sure the array is sorted */
+void sorted_check(int num[], int length)
+{
+    bool x = true; // let x initally be true
+    
+    for (int i = 0; i < length - 1; i++) // go through the array one element at a time
+    {
+        if (num[i] > num[i + 1]) // if one element is greater than the element before it, array is not sorted
+        {
+            x = false; // change x to be false if the array is not sorted 
+        }
+    }
+
+    if (x) // if x is still true, no non sorted numbers in the array
+    {
+        printf("sorted");
+    }
+    else
+    {
+        printf("not sorted");
+    }
 }
 
 int main(int argc, char *argv[]) 
 {  
+    /* start the clock to record how long the program takes */
+    clock_t begin = clock();
     
-    FILE *fp1;
-    FILE *fp2;
+    FILE *fp;
 
     /* find the length of the array */
     int length = array_len(argv[1]);
@@ -94,41 +115,29 @@ int main(int argc, char *argv[])
     int *num = NULL;
     num = (int *)malloc(sizeof(int)*length);
     
-    /* open the file of unsorted integers in the command line and pass the integers into an array */
-    fp1 = fopen(argv[1], "r");
+    /* open the file in the command line and pass the integers into an array */
+    fp = fopen(argv[1], "r");
 
     for (int i = 0; i < length; i++)
     {
-        fscanf(fp1, "%d", &num[i]);
+        fscanf(fp, "%d", &num[i]);
     }
 
-    fclose(fp1);
+    fclose(fp); // close the file after the content has been moved to the num array
 
-    /* find the value that k will be */
-    int k = (length / 3) + 1;
+    quicksort(num, 0, length - 1); // pass the array, high and low figure into the quicksort function 
 
-    /* pass the array, high, low figure, and k into the ksort function */
-    ksort(num, 0, length - 1, k); 
+    /* end the clock when the quicksort program finishes running */
+    clock_t end = clock();
+ 
+    /* print how the program took to run */
+    printf("Elapsed: %f seconds\n", (double)(end - begin) / CLOCKS_PER_SEC);
 
-    /* name the new file the k sorted array will be in */
-    char flength[50];
-    sprintf(flength, "%d", length);
-
-    char fname[50] = "ksorted";
-    strcat(fname, flength);
-    strcat(fname, ".txt");
-
-    /* open the file to write to and pass the k-sorted array into it */
-    fp2 = fopen(fname, "w");
-
-    for (size_t i = 0; i < length; i++)
-    {
-        fprintf(fp2, "%d ", num[i]);
-    }
-    fprintf(fp2, "\n");
-    fclose(fp2);
-
+    /* make sure the array is sorted */
+    sorted_check(num, length);
+    
     /* release the memory allocated for the array */
     free(num);
+
     return 0;
 } 

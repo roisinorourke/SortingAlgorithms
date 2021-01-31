@@ -4,6 +4,7 @@
 #include <time.h>
 #include <stdbool.h>
 
+/* function to swap two integers */
 void swap(int *x, int *y) 
 { 
     int temp = *x; 
@@ -11,16 +12,17 @@ void swap(int *x, int *y)
     *y = temp; 
 } 
   
+/* function to sort the array using selection sort */
 void selection_sort(int arr[], int length) 
 { 
+    /* initialise variables */
     int i = 0;
     int j = 0;
     int min_index; 
-  
-    // One by one move boundary of unsorted subarray 
-    for (i = 0; i < length - 1; i++) 
+
+    for (i = 0; i < length - 1; i++) // move through the unsorted section of the array one by one
     { 
-        // Find the minimum element in unsorted array 
+        /* Find the index of the smallest element in the array */
         min_index = i; 
         for (j = min_index + 1; j < length; j++) 
         {
@@ -29,16 +31,17 @@ void selection_sort(int arr[], int length)
                 min_index = j; 
             }
         }
-        // Swap the found minimum element with the first element 
+        // Swap the smallest element with the first element 
         swap(&arr[min_index], &arr[i]); 
     } 
 }
 
+/* function that extracts the number from the file name so we know the length of the array */
 int array_len( char *p)
 {
     int length;
 
-    /* extracts the number from the file name so we know the length of the array */
+    /* go through the file name char by char */
     while (*p) 
     { // While there are more characters to process...
         if ( isdigit(*p) ) 
@@ -114,7 +117,7 @@ int main(int argc, char *argv[])
     /* make sure the array is sorted */
     sorted_check(num, length);
 
-    /* release the memory allocated for the string */
+    /* release the memory allocated for the array */
     free(num);
 
     return 0;
